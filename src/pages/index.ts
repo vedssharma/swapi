@@ -1,0 +1,13 @@
+export { Home } from './Home';
+export { People } from './People';
+export { PersonDetail } from './PersonDetail';
+export { Planets } from './Planets';
+export { PlanetDetail } from './PlanetDetail';
+export { Starships } from './Starships';
+export { StarshipDetail } from './StarshipDetail';
+export { Vehicles } from './Vehicles';
+export { VehicleDetail } from './VehicleDetail';
+export { Species } from './Species';
+export { SpeciesDetail } from './SpeciesDetail';
+export { Films } from './Films';
+export { FilmDetail } from './FilmDetail';

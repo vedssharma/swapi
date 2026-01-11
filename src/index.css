@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  --sw-yellow: #FFE81F;
+  --sw-blue: #0077B6;
+  --sw-dark: #0D0D0D;
+  --sw-gray: #1A1A1A;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #0D0D0D, #1A1A2E);
+}
+
+/* Star Wars style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sw-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sw-yellow);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccb800;
+}
