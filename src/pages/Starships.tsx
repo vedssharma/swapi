@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getStarships, extractIdFromUrl } from '../services/api';
+import { getStarshipImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
 import type { Starship } from '../types';
 
@@ -26,19 +27,23 @@ export function Starships() {
         count={starships.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {starships.map((starship) => (
-          <Card
-            key={starship.url}
-            title={starship.name}
-            subtitle={starship.starship_class}
-            details={[
-              { label: 'Manufacturer', value: starship.manufacturer },
-              { label: 'Model', value: starship.model },
-              { label: 'Hyperdrive', value: starship.hyperdrive_rating },
-            ]}
-            linkTo={`/starships/${extractIdFromUrl(starship.url)}`}
-          />
-        ))}
+        {starships.map((starship) => {
+          const id = extractIdFromUrl(starship.url);
+          return (
+            <Card
+              key={starship.url}
+              title={starship.name}
+              subtitle={starship.starship_class}
+              details={[
+                { label: 'Manufacturer', value: starship.manufacturer },
+                { label: 'Model', value: starship.model },
+                { label: 'Hyperdrive', value: starship.hyperdrive_rating },
+              ]}
+              linkTo={`/starships/${id}`}
+              imageUrl={getStarshipImage(id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

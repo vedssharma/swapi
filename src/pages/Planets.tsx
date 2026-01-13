@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getPlanets, extractIdFromUrl } from '../services/api';
+import { getPlanetImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
 import type { Planet } from '../types';
 
@@ -26,19 +27,23 @@ export function Planets() {
         count={planets.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {planets.map((planet) => (
-          <Card
-            key={planet.url}
-            title={planet.name}
-            subtitle={planet.climate}
-            details={[
-              { label: 'Population', value: planet.population !== 'unknown' ? parseInt(planet.population).toLocaleString() : 'Unknown' },
-              { label: 'Terrain', value: planet.terrain },
-              { label: 'Diameter', value: planet.diameter !== 'unknown' ? `${parseInt(planet.diameter).toLocaleString()} km` : 'Unknown' },
-            ]}
-            linkTo={`/planets/${extractIdFromUrl(planet.url)}`}
-          />
-        ))}
+        {planets.map((planet) => {
+          const id = extractIdFromUrl(planet.url);
+          return (
+            <Card
+              key={planet.url}
+              title={planet.name}
+              subtitle={planet.climate}
+              details={[
+                { label: 'Population', value: planet.population !== 'unknown' ? parseInt(planet.population).toLocaleString() : 'Unknown' },
+                { label: 'Terrain', value: planet.terrain },
+                { label: 'Diameter', value: planet.diameter !== 'unknown' ? `${parseInt(planet.diameter).toLocaleString()} km` : 'Unknown' },
+              ]}
+              linkTo={`/planets/${id}`}
+              imageUrl={getPlanetImage(id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

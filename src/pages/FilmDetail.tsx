@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getFilm, fetchByUrl, extractIdFromUrl } from '../services/api';
+import { getFilmImage } from '../services/images';
 import { Loader, ErrorMessage, DetailRow } from '../components';
 import type { Film, Person, Planet, Starship, Vehicle, Species } from '../types';
 
@@ -14,6 +15,7 @@ export function FilmDetail() {
   const [species, setSpecies] = useState<Species[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -50,109 +52,125 @@ export function FilmDetail() {
         &larr; Back to Films
       </Link>
 
-      <div className="bg-gray-900/80 border border-yellow-400/30 rounded-lg p-8">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-2">{film.title}</h1>
-        <p className="text-gray-400 text-lg mb-6">Episode {film.episode_id}</p>
+      <div className="bg-gray-900/80 border border-yellow-400/30 rounded-lg overflow-hidden">
+        <div className="md:flex">
+          {id && !imageError && (
+            <div className="md:w-1/3 bg-gray-800">
+              <img
+                src={getFilmImage(id)}
+                alt={film.title}
+                className="w-full h-auto md:h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          )}
+          <div className="flex-1 p-8">
+            <h1 className="text-4xl font-bold text-yellow-400 mb-2">{film.title}</h1>
+            <p className="text-gray-400 text-lg mb-6">Episode {film.episode_id}</p>
 
-        <div className="bg-black/50 p-6 rounded-lg mb-8 border border-yellow-400/10">
-          <p className="text-gray-300 italic leading-relaxed whitespace-pre-line text-sm">
-            {film.opening_crawl}
-          </p>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-300 mb-4">Production</h2>
+                <DetailRow label="Director" value={film.director} />
+                <DetailRow label="Producer" value={film.producer} />
+                <DetailRow label="Release Date" value={new Date(film.release_date).toLocaleDateString()} />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Production</h2>
-            <DetailRow label="Director" value={film.director} />
-            <DetailRow label="Producer" value={film.producer} />
-            <DetailRow label="Release Date" value={new Date(film.release_date).toLocaleDateString()} />
+        <div className="p-8 pt-0">
+          <div className="bg-black/50 p-6 rounded-lg mt-8 border border-yellow-400/10">
+            <p className="text-gray-300 italic leading-relaxed whitespace-pre-line text-sm">
+              {film.opening_crawl}
+            </p>
           </div>
+
+          {characters.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Characters ({characters.length})</h2>
+              <div className="flex flex-wrap gap-2">
+                {characters.map((character) => (
+                  <Link
+                    key={character.url}
+                    to={`/people/${extractIdFromUrl(character.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {character.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {planets.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Planets ({planets.length})</h2>
+              <div className="flex flex-wrap gap-2">
+                {planets.map((planet) => (
+                  <Link
+                    key={planet.url}
+                    to={`/planets/${extractIdFromUrl(planet.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {planet.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {starships.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Starships ({starships.length})</h2>
+              <div className="flex flex-wrap gap-2">
+                {starships.map((starship) => (
+                  <Link
+                    key={starship.url}
+                    to={`/starships/${extractIdFromUrl(starship.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {starship.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {vehicles.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Vehicles ({vehicles.length})</h2>
+              <div className="flex flex-wrap gap-2">
+                {vehicles.map((vehicle) => (
+                  <Link
+                    key={vehicle.url}
+                    to={`/vehicles/${extractIdFromUrl(vehicle.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {vehicle.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {species.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Species ({species.length})</h2>
+              <div className="flex flex-wrap gap-2">
+                {species.map((s) => (
+                  <Link
+                    key={s.url}
+                    to={`/species/${extractIdFromUrl(s.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {s.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-
-        {characters.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Characters ({characters.length})</h2>
-            <div className="flex flex-wrap gap-2">
-              {characters.map((character) => (
-                <Link
-                  key={character.url}
-                  to={`/people/${extractIdFromUrl(character.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {character.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {planets.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Planets ({planets.length})</h2>
-            <div className="flex flex-wrap gap-2">
-              {planets.map((planet) => (
-                <Link
-                  key={planet.url}
-                  to={`/planets/${extractIdFromUrl(planet.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {planet.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {starships.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Starships ({starships.length})</h2>
-            <div className="flex flex-wrap gap-2">
-              {starships.map((starship) => (
-                <Link
-                  key={starship.url}
-                  to={`/starships/${extractIdFromUrl(starship.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {starship.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {vehicles.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Vehicles ({vehicles.length})</h2>
-            <div className="flex flex-wrap gap-2">
-              {vehicles.map((vehicle) => (
-                <Link
-                  key={vehicle.url}
-                  to={`/vehicles/${extractIdFromUrl(vehicle.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {vehicle.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {species.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Species ({species.length})</h2>
-            <div className="flex flex-wrap gap-2">
-              {species.map((s) => (
-                <Link
-                  key={s.url}
-                  to={`/species/${extractIdFromUrl(s.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {s.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

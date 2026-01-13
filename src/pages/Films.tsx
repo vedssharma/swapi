@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getFilms, extractIdFromUrl } from '../services/api';
+import { getFilmImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
 import type { Film } from '../types';
 
@@ -30,19 +31,23 @@ export function Films() {
         count={films.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {films.map((film) => (
-          <Card
-            key={film.url}
-            title={film.title}
-            subtitle={`Episode ${film.episode_id}`}
-            details={[
-              { label: 'Director', value: film.director },
-              { label: 'Producer', value: film.producer.split(',')[0] },
-              { label: 'Release Date', value: new Date(film.release_date).toLocaleDateString() },
-            ]}
-            linkTo={`/films/${extractIdFromUrl(film.url)}`}
-          />
-        ))}
+        {films.map((film) => {
+          const id = extractIdFromUrl(film.url);
+          return (
+            <Card
+              key={film.url}
+              title={film.title}
+              subtitle={`Episode ${film.episode_id}`}
+              details={[
+                { label: 'Director', value: film.director },
+                { label: 'Producer', value: film.producer.split(',')[0] },
+                { label: 'Release Date', value: new Date(film.release_date).toLocaleDateString() },
+              ]}
+              linkTo={`/films/${id}`}
+              imageUrl={getFilmImage(id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

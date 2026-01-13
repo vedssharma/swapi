@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getPeople } from '../services/api';
+import { getPeople, extractIdFromUrl } from '../services/api';
+import { getPersonImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
 import type { Person } from '../types';
-import { extractIdFromUrl } from '../services/api';
 
 export function People() {
   const [people, setPeople] = useState<Person[]>([]);
@@ -27,19 +27,23 @@ export function People() {
         count={people.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {people.map((person) => (
-          <Card
-            key={person.url}
-            title={person.name}
-            subtitle={person.gender !== 'n/a' ? person.gender : undefined}
-            details={[
-              { label: 'Birth Year', value: person.birth_year },
-              { label: 'Height', value: person.height !== 'unknown' ? `${person.height} cm` : 'Unknown' },
-              { label: 'Mass', value: person.mass !== 'unknown' ? `${person.mass} kg` : 'Unknown' },
-            ]}
-            linkTo={`/people/${extractIdFromUrl(person.url)}`}
-          />
-        ))}
+        {people.map((person) => {
+          const id = extractIdFromUrl(person.url);
+          return (
+            <Card
+              key={person.url}
+              title={person.name}
+              subtitle={person.gender !== 'n/a' ? person.gender : undefined}
+              details={[
+                { label: 'Birth Year', value: person.birth_year },
+                { label: 'Height', value: person.height !== 'unknown' ? `${person.height} cm` : 'Unknown' },
+                { label: 'Mass', value: person.mass !== 'unknown' ? `${person.mass} kg` : 'Unknown' },
+              ]}
+              linkTo={`/people/${id}`}
+              imageUrl={getPersonImage(id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

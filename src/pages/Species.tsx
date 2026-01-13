@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getSpecies, extractIdFromUrl } from '../services/api';
+import { getSpeciesImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
 import type { Species as SpeciesType } from '../types';
 
@@ -26,19 +27,23 @@ export function Species() {
         count={species.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {species.map((s) => (
-          <Card
-            key={s.url}
-            title={s.name}
-            subtitle={s.classification}
-            details={[
-              { label: 'Designation', value: s.designation },
-              { label: 'Language', value: s.language },
-              { label: 'Avg Lifespan', value: s.average_lifespan !== 'unknown' ? `${s.average_lifespan} years` : 'Unknown' },
-            ]}
-            linkTo={`/species/${extractIdFromUrl(s.url)}`}
-          />
-        ))}
+        {species.map((s) => {
+          const id = extractIdFromUrl(s.url);
+          return (
+            <Card
+              key={s.url}
+              title={s.name}
+              subtitle={s.classification}
+              details={[
+                { label: 'Designation', value: s.designation },
+                { label: 'Language', value: s.language },
+                { label: 'Avg Lifespan', value: s.average_lifespan !== 'unknown' ? `${s.average_lifespan} years` : 'Unknown' },
+              ]}
+              linkTo={`/species/${id}`}
+              imageUrl={getSpeciesImage(id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

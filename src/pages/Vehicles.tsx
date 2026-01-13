@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getVehicles, extractIdFromUrl } from '../services/api';
+import { getVehicleImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
 import type { Vehicle } from '../types';
 
@@ -26,19 +27,23 @@ export function Vehicles() {
         count={vehicles.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {vehicles.map((vehicle) => (
-          <Card
-            key={vehicle.url}
-            title={vehicle.name}
-            subtitle={vehicle.vehicle_class}
-            details={[
-              { label: 'Manufacturer', value: vehicle.manufacturer },
-              { label: 'Model', value: vehicle.model },
-              { label: 'Max Speed', value: vehicle.max_atmosphering_speed !== 'unknown' ? `${vehicle.max_atmosphering_speed} km/h` : 'Unknown' },
-            ]}
-            linkTo={`/vehicles/${extractIdFromUrl(vehicle.url)}`}
-          />
-        ))}
+        {vehicles.map((vehicle) => {
+          const id = extractIdFromUrl(vehicle.url);
+          return (
+            <Card
+              key={vehicle.url}
+              title={vehicle.name}
+              subtitle={vehicle.vehicle_class}
+              details={[
+                { label: 'Manufacturer', value: vehicle.manufacturer },
+                { label: 'Model', value: vehicle.model },
+                { label: 'Max Speed', value: vehicle.max_atmosphering_speed !== 'unknown' ? `${vehicle.max_atmosphering_speed} km/h` : 'Unknown' },
+              ]}
+              linkTo={`/vehicles/${id}`}
+              imageUrl={getVehicleImage(id)}
+            />
+          );
+        })}
       </div>
     </div>
   );

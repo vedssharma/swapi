@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPerson, fetchByUrl, extractIdFromUrl } from '../services/api';
+import { getPersonImage } from '../services/images';
 import { Loader, ErrorMessage, DetailRow } from '../components';
 import type { Person, Planet, Film, Starship, Vehicle, Species } from '../types';
 
@@ -14,6 +15,7 @@ export function PersonDetail() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -51,78 +53,94 @@ export function PersonDetail() {
         &larr; Back to Characters
       </Link>
 
-      <div className="bg-gray-900/80 border border-yellow-400/30 rounded-lg p-8">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-6">{person.name}</h1>
+      <div className="bg-gray-900/80 border border-yellow-400/30 rounded-lg overflow-hidden">
+        <div className="md:flex">
+          {id && !imageError && (
+            <div className="md:w-1/3 bg-gray-800">
+              <img
+                src={getPersonImage(id)}
+                alt={person.name}
+                className="w-full h-64 md:h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          )}
+          <div className="flex-1 p-8">
+            <h1 className="text-4xl font-bold text-yellow-400 mb-6">{person.name}</h1>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Physical Attributes</h2>
-            <DetailRow label="Height" value={person.height !== 'unknown' ? `${person.height} cm` : 'Unknown'} />
-            <DetailRow label="Mass" value={person.mass !== 'unknown' ? `${person.mass} kg` : 'Unknown'} />
-            <DetailRow label="Hair Color" value={person.hair_color} />
-            <DetailRow label="Skin Color" value={person.skin_color} />
-            <DetailRow label="Eye Color" value={person.eye_color} />
-          </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-300 mb-4">Physical Attributes</h2>
+                <DetailRow label="Height" value={person.height !== 'unknown' ? `${person.height} cm` : 'Unknown'} />
+                <DetailRow label="Mass" value={person.mass !== 'unknown' ? `${person.mass} kg` : 'Unknown'} />
+                <DetailRow label="Hair Color" value={person.hair_color} />
+                <DetailRow label="Skin Color" value={person.skin_color} />
+                <DetailRow label="Eye Color" value={person.eye_color} />
+              </div>
 
-          <div>
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Background</h2>
-            <DetailRow label="Birth Year" value={person.birth_year} />
-            <DetailRow label="Gender" value={person.gender} />
-            <DetailRow label="Homeworld" value={homeworld?.name || 'Unknown'} />
-            <DetailRow label="Species" value={species.map((s) => s.name).join(', ') || 'Human'} />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-300 mb-4">Background</h2>
+                <DetailRow label="Birth Year" value={person.birth_year} />
+                <DetailRow label="Gender" value={person.gender} />
+                <DetailRow label="Homeworld" value={homeworld?.name || 'Unknown'} />
+                <DetailRow label="Species" value={species.map((s) => s.name).join(', ') || 'Human'} />
+              </div>
+            </div>
           </div>
         </div>
 
-        {films.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Films</h2>
-            <div className="flex flex-wrap gap-2">
-              {films.map((film) => (
-                <Link
-                  key={film.url}
-                  to={`/films/${extractIdFromUrl(film.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {film.title}
-                </Link>
-              ))}
+        <div className="p-8 pt-0">
+          {films.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Films</h2>
+              <div className="flex flex-wrap gap-2">
+                {films.map((film) => (
+                  <Link
+                    key={film.url}
+                    to={`/films/${extractIdFromUrl(film.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {film.title}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {starships.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Starships</h2>
-            <div className="flex flex-wrap gap-2">
-              {starships.map((ship) => (
-                <Link
-                  key={ship.url}
-                  to={`/starships/${extractIdFromUrl(ship.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {ship.name}
-                </Link>
-              ))}
+          {starships.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Starships</h2>
+              <div className="flex flex-wrap gap-2">
+                {starships.map((ship) => (
+                  <Link
+                    key={ship.url}
+                    to={`/starships/${extractIdFromUrl(ship.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {ship.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {vehicles.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold text-gray-300 mb-4">Vehicles</h2>
-            <div className="flex flex-wrap gap-2">
-              {vehicles.map((vehicle) => (
-                <Link
-                  key={vehicle.url}
-                  to={`/vehicles/${extractIdFromUrl(vehicle.url)}`}
-                  className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
-                >
-                  {vehicle.name}
-                </Link>
-              ))}
+          {vehicles.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-300 mb-4">Vehicles</h2>
+              <div className="flex flex-wrap gap-2">
+                {vehicles.map((vehicle) => (
+                  <Link
+                    key={vehicle.url}
+                    to={`/vehicles/${extractIdFromUrl(vehicle.url)}`}
+                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded hover:bg-yellow-400/20 hover:text-yellow-400 transition-colors"
+                  >
+                    {vehicle.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
