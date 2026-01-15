@@ -78,3 +78,32 @@ export function getResourceTypeFromUrl(url: string): ResourceType {
   const match = url.match(/\/api\/(\w+)\//);
   return (match?.[1] || 'people') as ResourceType;
 }
+
+export interface SearchResult {
+  name: string;
+  type: ResourceType;
+  id: string;
+}
+
+// Fetch all resources for search
+export async function getAllResourcesForSearch(): Promise<SearchResult[]> {
+  const [people, planets, starships, vehicles, species, films] = await Promise.all([
+    getPeople(),
+    getPlanets(),
+    getStarships(),
+    getVehicles(),
+    getSpecies(),
+    getFilms(),
+  ]);
+
+  const results: SearchResult[] = [];
+
+  people.forEach((p) => results.push({ name: p.name, type: 'people', id: extractIdFromUrl(p.url) }));
+  planets.forEach((p) => results.push({ name: p.name, type: 'planets', id: extractIdFromUrl(p.url) }));
+  starships.forEach((s) => results.push({ name: s.name, type: 'starships', id: extractIdFromUrl(s.url) }));
+  vehicles.forEach((v) => results.push({ name: v.name, type: 'vehicles', id: extractIdFromUrl(v.url) }));
+  species.forEach((s) => results.push({ name: s.name, type: 'species', id: extractIdFromUrl(s.url) }));
+  films.forEach((f) => results.push({ name: f.title, type: 'films', id: extractIdFromUrl(f.url) }));
+
+  return results;
+}

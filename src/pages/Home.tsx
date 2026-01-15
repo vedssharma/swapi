@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { SearchBar } from '../components';
 
 const categories = [
   {
@@ -51,6 +52,10 @@ export function Home() {
           Explore the Star Wars universe. Browse characters, planets, starships,
           vehicles, species, and films from the Star Wars saga.
         </p>
+      </div>
+
+      <div className="mb-12">
+        <SearchBar />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
