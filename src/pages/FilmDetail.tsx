@@ -66,7 +66,9 @@ export function FilmDetail() {
           )}
           <div className="flex-1 p-8">
             <h1 className="text-4xl font-bold text-yellow-400 mb-2">{film.title}</h1>
-            <p className="text-gray-400 text-lg mb-6">Episode {film.episode_id}</p>
+            <p className="text-gray-400 text-lg mb-6">
+              {film.episode_id ? `Episode ${film.episode_id}` : 'A Star Wars Story'}
+            </p>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>

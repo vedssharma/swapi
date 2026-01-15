@@ -12,8 +12,13 @@ export function Films() {
   useEffect(() => {
     getFilms()
       .then((data) => {
-        // Sort by episode number
-        const sorted = [...data].sort((a, b) => a.episode_id - b.episode_id);
+        // Sort by episode number, standalone films (no episode_id) come after episodic ones
+        const sorted = [...data].sort((a, b) => {
+          if (a.episode_id === undefined && b.episode_id === undefined) return 0;
+          if (a.episode_id === undefined) return 1;
+          if (b.episode_id === undefined) return -1;
+          return a.episode_id - b.episode_id;
+        });
         setFilms(sorted);
       })
       .catch((err) => setError(err.message))
@@ -37,7 +42,7 @@ export function Films() {
             <Card
               key={film.url}
               title={film.title}
-              subtitle={`Episode ${film.episode_id}`}
+              subtitle={film.episode_id ? `Episode ${film.episode_id}` : 'A Star Wars Story'}
               details={[
                 { label: 'Director', value: film.director },
                 { label: 'Producer', value: film.producer.split(',')[0] },

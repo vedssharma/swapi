@@ -1,4 +1,5 @@
 import type { Person, Planet, Film, Species, Starship, Vehicle, ResourceType } from '../types';
+import { localFilms, getLocalFilm } from '../data/films';
 
 const BASE_URL = 'https://swapi.info/api';
 
@@ -27,10 +28,15 @@ export async function getPlanet(id: string): Promise<Planet> {
 }
 
 export async function getFilms(): Promise<Film[]> {
-  return fetchData<Film[]>('/films');
+  const swapiFilms = await fetchData<Film[]>('/films');
+  return [...swapiFilms, ...localFilms];
 }
 
 export async function getFilm(id: string): Promise<Film> {
+  const localFilm = getLocalFilm(id);
+  if (localFilm) {
+    return localFilm;
+  }
   return fetchData<Film>(`/films/${id}`);
 }
 
