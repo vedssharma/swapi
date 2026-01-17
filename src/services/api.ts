@@ -3,12 +3,55 @@ import { localFilms, getLocalFilm } from '../data/films';
 
 const BASE_URL = 'https://swapi.info/api';
 
+// Simple in-memory cache with TTL
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry<unknown>>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCachedData<T>(key: string): T | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+
+  // Check if cache entry is still valid
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    cache.delete(key);
+    return null;
+  }
+
+  return entry.data as T;
+}
+
+function setCachedData<T>(key: string, data: T): void {
+  cache.set(key, {
+    data,
+    timestamp: Date.now(),
+  });
+}
+
 async function fetchData<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`);
+  const cacheKey = `${BASE_URL}${endpoint}`;
+
+  // Check cache first
+  const cached = getCachedData<T>(cacheKey);
+  if (cached !== null) {
+    return cached;
+  }
+
+  // Fetch from API
+  const response = await fetch(cacheKey);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  return response.json();
+  const data = await response.json();
+
+  // Store in cache
+  setCachedData(cacheKey, data);
+
+  return data;
 }
 
 export async function getPeople(): Promise<Person[]> {
@@ -70,13 +113,25 @@ export function extractIdFromUrl(url: string): string {
   return parts[parts.length - 1];
 }
 
-// Helper to fetch any resource by URL
+// Helper to fetch any resource by URL (with caching)
 export async function fetchByUrl<T>(url: string): Promise<T> {
+  // Check cache first
+  const cached = getCachedData<T>(url);
+  if (cached !== null) {
+    return cached;
+  }
+
+  // Fetch from API
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  return response.json();
+  const data = await response.json();
+
+  // Store in cache
+  setCachedData(url, data);
+
+  return data;
 }
 
 // Get resource type from URL
