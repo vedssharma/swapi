@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getFilms, extractIdFromUrl } from '../services/api';
 import { getFilmImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
@@ -25,6 +25,25 @@ export function Films() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Memoize films with pre-computed IDs and card props
+  const filmsWithDetails = useMemo(() => {
+    return films.map((film) => {
+      const id = extractIdFromUrl(film.url);
+      return {
+        key: film.url,
+        title: film.title,
+        subtitle: film.episode_id ? `Episode ${film.episode_id}` : 'A Star Wars Story',
+        details: [
+          { label: 'Director', value: film.director },
+          { label: 'Producer', value: film.producer.split(',')[0] },
+          { label: 'Release Date', value: new Date(film.release_date).toLocaleDateString() },
+        ],
+        linkTo: `/films/${id}`,
+        imageUrl: getFilmImage(id),
+      };
+    });
+  }, [films]);
+
   if (loading) return <Loader />;
   if (error) return <ErrorMessage message={error} />;
 
@@ -36,23 +55,9 @@ export function Films() {
         count={films.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {films.map((film) => {
-          const id = extractIdFromUrl(film.url);
-          return (
-            <Card
-              key={film.url}
-              title={film.title}
-              subtitle={film.episode_id ? `Episode ${film.episode_id}` : 'A Star Wars Story'}
-              details={[
-                { label: 'Director', value: film.director },
-                { label: 'Producer', value: film.producer.split(',')[0] },
-                { label: 'Release Date', value: new Date(film.release_date).toLocaleDateString() },
-              ]}
-              linkTo={`/films/${id}`}
-              imageUrl={getFilmImage(id)}
-            />
-          );
-        })}
+        {filmsWithDetails.map(({ key, ...props }) => (
+          <Card key={key} {...props} />
+        ))}
       </div>
     </div>
   );

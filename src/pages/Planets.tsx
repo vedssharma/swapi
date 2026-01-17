@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getPlanets, extractIdFromUrl } from '../services/api';
 import { getPlanetImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
@@ -16,6 +16,25 @@ export function Planets() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Memoize planets with pre-computed IDs and card props
+  const planetsWithDetails = useMemo(() => {
+    return planets.map((planet) => {
+      const id = extractIdFromUrl(planet.url);
+      return {
+        key: planet.url,
+        title: planet.name,
+        subtitle: planet.climate,
+        details: [
+          { label: 'Population', value: planet.population !== 'unknown' ? parseInt(planet.population).toLocaleString() : 'Unknown' },
+          { label: 'Terrain', value: planet.terrain },
+          { label: 'Diameter', value: planet.diameter !== 'unknown' ? `${parseInt(planet.diameter).toLocaleString()} km` : 'Unknown' },
+        ],
+        linkTo: `/planets/${id}`,
+        imageUrl: getPlanetImage(id),
+      };
+    });
+  }, [planets]);
+
   if (loading) return <Loader />;
   if (error) return <ErrorMessage message={error} />;
 
@@ -27,23 +46,9 @@ export function Planets() {
         count={planets.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {planets.map((planet) => {
-          const id = extractIdFromUrl(planet.url);
-          return (
-            <Card
-              key={planet.url}
-              title={planet.name}
-              subtitle={planet.climate}
-              details={[
-                { label: 'Population', value: planet.population !== 'unknown' ? parseInt(planet.population).toLocaleString() : 'Unknown' },
-                { label: 'Terrain', value: planet.terrain },
-                { label: 'Diameter', value: planet.diameter !== 'unknown' ? `${parseInt(planet.diameter).toLocaleString()} km` : 'Unknown' },
-              ]}
-              linkTo={`/planets/${id}`}
-              imageUrl={getPlanetImage(id)}
-            />
-          );
-        })}
+        {planetsWithDetails.map(({ key, ...props }) => (
+          <Card key={key} {...props} />
+        ))}
       </div>
     </div>
   );

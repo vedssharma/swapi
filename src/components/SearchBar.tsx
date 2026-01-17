@@ -24,27 +24,45 @@ const typeIcons: Record<ResourceType, string> = {
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [allResults, setAllResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasLoadedRef = useRef(false);
   const navigate = useNavigate();
 
-  const suggestions = useMemo(() => {
-    if (query.trim().length === 0) return [];
-    return allResults
-      .filter((item) => item.name.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, 8);
-  }, [query, allResults]);
-
+  // Debounce the query input with 200ms delay
   useEffect(() => {
-    getAllResourcesForSearch()
-      .then(setAllResults)
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, []);
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Optimize string operations by calculating toLowerCase once
+  const suggestions = useMemo(() => {
+    if (debouncedQuery.trim().length === 0) return [];
+    const lowerQuery = debouncedQuery.toLowerCase(); // Calculate once
+    return allResults
+      .filter((item) => item.name.toLowerCase().includes(lowerQuery))
+      .slice(0, 8);
+  }, [debouncedQuery, allResults]);
+
+  // Function to load search data on demand
+  const loadSearchData = () => {
+    if (!hasLoadedRef.current && !isLoading) {
+      hasLoadedRef.current = true;
+      setIsLoading(true);
+      getAllResourcesForSearch()
+        .then(setAllResults)
+        .catch(console.error)
+        .finally(() => setIsLoading(false));
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -91,11 +109,14 @@ export function SearchBar() {
             setQuery(value);
             setSelectedIndex(-1);
             setIsOpen(value.trim().length > 0);
+            loadSearchData();
           }}
-          onFocus={() => query.trim() && suggestions.length > 0 && setIsOpen(true)}
+          onFocus={() => {
+            loadSearchData();
+            if (query.trim() && suggestions.length > 0) setIsOpen(true);
+          }}
           onKeyDown={handleKeyDown}
           placeholder={isLoading ? 'Loading search data...' : 'Search the galaxy...'}
-          disabled={isLoading}
           className="w-full px-5 py-3 pl-12 bg-gray-900/80 border border-yellow-400/30 rounded-full text-gray-100 placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/50 transition-all disabled:opacity-50"
         />
         <svg

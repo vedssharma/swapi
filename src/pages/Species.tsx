@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getSpecies, extractIdFromUrl } from '../services/api';
 import { getSpeciesImage } from '../services/images';
 import { Card, Loader, PageHeader, ErrorMessage } from '../components';
@@ -16,6 +16,25 @@ export function Species() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Memoize species with pre-computed IDs and card props
+  const speciesWithDetails = useMemo(() => {
+    return species.map((s) => {
+      const id = extractIdFromUrl(s.url);
+      return {
+        key: s.url,
+        title: s.name,
+        subtitle: s.classification,
+        details: [
+          { label: 'Designation', value: s.designation },
+          { label: 'Language', value: s.language },
+          { label: 'Avg Lifespan', value: s.average_lifespan !== 'unknown' ? `${s.average_lifespan} years` : 'Unknown' },
+        ],
+        linkTo: `/species/${id}`,
+        imageUrl: getSpeciesImage(id),
+      };
+    });
+  }, [species]);
+
   if (loading) return <Loader />;
   if (error) return <ErrorMessage message={error} />;
 
@@ -27,23 +46,9 @@ export function Species() {
         count={species.length}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {species.map((s) => {
-          const id = extractIdFromUrl(s.url);
-          return (
-            <Card
-              key={s.url}
-              title={s.name}
-              subtitle={s.classification}
-              details={[
-                { label: 'Designation', value: s.designation },
-                { label: 'Language', value: s.language },
-                { label: 'Avg Lifespan', value: s.average_lifespan !== 'unknown' ? `${s.average_lifespan} years` : 'Unknown' },
-              ]}
-              linkTo={`/species/${id}`}
-              imageUrl={getSpeciesImage(id)}
-            />
-          );
-        })}
+        {speciesWithDetails.map(({ key, ...props }) => (
+          <Card key={key} {...props} />
+        ))}
       </div>
     </div>
   );

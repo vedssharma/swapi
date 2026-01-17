@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 
 interface CardProps {
@@ -10,7 +10,7 @@ interface CardProps {
   imageUrl?: string;
 }
 
-export function Card({ title, subtitle, details, linkTo, icon, imageUrl }: CardProps) {
+export const Card = memo(function Card({ title, subtitle, details, linkTo, icon, imageUrl }: CardProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -52,4 +52,4 @@ export function Card({ title, subtitle, details, linkTo, icon, imageUrl }: CardP
       </div>
     </Link>
   );
-}
+});
