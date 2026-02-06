@@ -1,18 +1,4 @@
-import peopleImages from '../data/images/people.json';
-import planetsImages from '../data/images/planets.json';
-import starshipsImages from '../data/images/starships.json';
-import vehiclesImages from '../data/images/vehicles.json';
-import speciesImages from '../data/images/species.json';
-import filmsImages from '../data/images/films.json';
-
-type ImageMap = Record<string, string>;
-
-const people = peopleImages as ImageMap;
-const planets = planetsImages as ImageMap;
-const starships = starshipsImages as ImageMap;
-const vehicles = vehiclesImages as ImageMap;
-const species = speciesImages as ImageMap;
-const films = filmsImages as ImageMap;
+const BASE_URL = 'https://starwars-visualguide.com/assets/img';
 
 // Placeholder SVG data URIs for each category
 const PLACEHOLDERS = {
@@ -25,27 +11,33 @@ const PLACEHOLDERS = {
 };
 
 export function getPersonImage(id: string): string {
-  return people[id] || PLACEHOLDERS.person;
+  if (!id) return PLACEHOLDERS.person;
+  return `${BASE_URL}/characters/${id}.jpg`;
 }
 
 export function getPlanetImage(id: string): string {
-  return planets[id] || PLACEHOLDERS.planet;
+  if (!id) return PLACEHOLDERS.planet;
+  return `${BASE_URL}/planets/${id}.jpg`;
 }
 
 export function getStarshipImage(id: string): string {
-  return starships[id] || PLACEHOLDERS.starship;
+  if (!id) return PLACEHOLDERS.starship;
+  return `${BASE_URL}/starships/${id}.jpg`;
 }
 
 export function getVehicleImage(id: string): string {
-  return vehicles[id] || PLACEHOLDERS.vehicle;
+  if (!id) return PLACEHOLDERS.vehicle;
+  return `${BASE_URL}/vehicles/${id}.jpg`;
 }
 
 export function getSpeciesImage(id: string): string {
-  return species[id] || PLACEHOLDERS.species;
+  if (!id) return PLACEHOLDERS.species;
+  return `${BASE_URL}/species/${id}.jpg`;
 }
 
 export function getFilmImage(id: string): string {
-  return films[id] || PLACEHOLDERS.film;
+  if (!id) return PLACEHOLDERS.film;
+  return `${BASE_URL}/films/${id}.jpg`;
 }
 
 // Get image by resource type and ID
